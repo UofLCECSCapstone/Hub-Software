@@ -2,22 +2,25 @@ import http.server
 import datetime
 import HubController
 
+Controller = HubController.HubController()
+
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
             self.log(self.path)
             if self.path   == "/get_door_status":
+                Controller.PushCommand(HubController.HubController.CMD_GET_DOOR_STATUS)
                 responseText = "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
                 self.send_valid_response(responseText)
                 return
             elif self.path == "/get_light_status":
-                HubController.PushCommand(HubController.CMD_GET_LIGHT_STATUS)
+                Controller.PushCommand(HubController.HubController.CMD_GET_LIGHT_STATUS)
                 responseText = "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
                 self.send_valid_response(responseText)
                 return
             elif self.path == "/get_temperature_status":
-                HubController.PushCommand(HubController.CMD_GET_TEMPERATURE_STATUS)
+                Controller.PushCommand(HubController.HubController.CMD_GET_TEMPERATURE_STATUS)
                 responseText = "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
                 self.send_valid_response(responseText)
                 return
