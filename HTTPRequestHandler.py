@@ -41,8 +41,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 def StartServer():
     print("Server starting...")
     #ip and port of server
-    #by default http server port is 80
-    server_address = ('127.0.0.1', 80)
+    server_address = ('127.0.0.1', 8080)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
     print('http server is running...')
     httpd.serve_forever()
