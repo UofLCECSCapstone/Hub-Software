@@ -8,37 +8,31 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         try:
             self.log(self.path)
             if self.path   == "/get_door_status":
-                HubController.PushCommand(HubController.CMD_GET_DOOR_STATUS)
-                self.send_response(200)
-                self.send_header('Content-type','text/plain')
-                self.end_headers()
                 responseText = "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-                print("Response: " + responseText)
-                self.wfile.write(bytes(responseText, "utf-8"))
+                self.send_valid_response(responseText)
                 return
             elif self.path == "/get_light_status":
                 HubController.PushCommand(HubController.CMD_GET_LIGHT_STATUS)
-                self.send_response(200)
-                self.send_header('Content-type','text/plain')
-                self.end_headers()
                 responseText = "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-                print("Response: " + responseText)
-                self.wfile.write(bytes(responseText, "utf-8"))
+                self.send_valid_response(responseText)
                 return
             elif self.path == "/get_temperature_status":
                 HubController.PushCommand(HubController.CMD_GET_TEMPERATURE_STATUS)
-                self.send_response(200)
-                self.send_header('Content-type','text/plain')
-                self.end_headers()
                 responseText = "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-                print("Response: " + responseText)
-                self.wfile.write(bytes(responseText, "utf-8"))
+                self.send_valid_response(responseText)
                 return
             else:
                 self.send_error("TODO Throw some kind of undefined command error here.")
         except IOError:
             self.send_error(404, 'file not found')
         # TODO How do I handle other types of errors?
+
+    def send_valid_response(self, responseText):
+        self.send_response(200)
+        self.send_header('Content-type','text/plain')
+        self.end_headers()
+        self.log("Response: " + responseText)
+        self.wfile.write(bytes(responseText, "utf-8"))
 
     def log(self, message):
         print("HTTPRequestHandler::" + message)
