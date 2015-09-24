@@ -42,6 +42,7 @@ def UpdateLightStatus():
     # print("...")
     # print("Checking lightbulb n status...")
 
+    
 class HubController:
     """
     Class that provides the interface between connected hardware devices
@@ -74,7 +75,7 @@ class HubController:
         elif commandAbbreviation == self.CMD_GET_TEMPERATURE_STATUS:
             return "Getting temperature status..."
         elif commandAbbreviation == "":
-            print("TODO Testing")
+            log("TODO Testing")
             # No command found.
         else:
             return "TODO Handle this case somehow."
@@ -85,6 +86,10 @@ class HubController:
         :param commandAbbreviation: An abbreviation representing the command to execute.
         """
         self.CommandQueue.put(commandAbbreviation)
+        self.log("Received command: " + commandAbbreviation)
+
+    def log(self, message):
+        print("HubControler::" + message)
 
 #######################
 ##### Main method #####

@@ -6,7 +6,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            print(self.path)
+            self.log(self.path)
             if self.path   == "/get_door_status":
                 HubController.PushCommand(HubController.CMD_GET_DOOR_STATUS)
                 self.send_response(200)
@@ -39,6 +39,10 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         except IOError:
             self.send_error(404, 'file not found')
         # TODO How do I handle other types of errors?
+
+    def log(self, message):
+        print("HTTPRequestHandler::" + message)
+
 
 def StartServer():
     print("Server starting...")
