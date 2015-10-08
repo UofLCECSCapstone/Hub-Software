@@ -1,5 +1,6 @@
 #! python
 
+# TODO It would be useful to log, probably in a file, each command that is executed/received/etc. Same goes for the HTTP server.
 # TODO Create classes that represent each type of peripheral - Lightbulb, Thermostat, Door -
 #      and populate objects of those classes in the below methods, to keep things logically separated out.
 #      Procedural spaghetti is bad.
