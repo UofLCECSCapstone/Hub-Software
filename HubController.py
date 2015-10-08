@@ -5,12 +5,7 @@
 #      Procedural spaghetti is bad.
 # TODO This should probably be converted into a class.
 
-#################################
-##### Command abbreviations #####
-#################################
-CMD_GET_DOOR_STATUS = "GetDoorStatus"
-CMD_GET_LIGHT_STATUS = "GetLightStatus"
-CMD_GET_TEMPERATURE_STATUS = "GetTemperatureStatus"
+import queue
 
 ###################
 ##### Methods #####
@@ -48,36 +43,59 @@ def UpdateLightStatus():
     # print("...")
     # print("Checking lightbulb n status...")
 
-def CheckForCommands():
+class HubController:
     """
-    Checks to see if the user has requested that a command be performed.
-    If so, the command is performed.
+    Class that provides the interface between connected hardware devices
+    and the Android phone controlling the devices.
     """
-    # print("Checking for commands from the user...")
-    # print("TODO Fill this in with actual checks.")
 
-def PushCommand(commandAbbreviation):
-    """
-    Pushes a command to the hub controller's queue of commands to be processed.
-    :param commandAbbreviation: An abbreviation representing the command to execute.
-    """
-    if commandAbbreviation == CMD_GET_DOOR_STATUS:
-        print("Getting door status...")
-    elif commandAbbreviation == CMD_GET_LIGHT_STATUS:
-        print("Getting light status...")
-    elif commandAbbreviation == CMD_GET_TEMPERATURE_STATUS:
-        print("Getting temperature status...")
-    else:
-        print("TODO Handle this case somehow.")
+    #################################
+    ##### Command abbreviations #####
+    #################################
+    CMD_GET_DOOR_STATUS = "GetDoorStatus"
+    CMD_GET_LIGHT_STATUS = "GetLightStatus"
+    CMD_GET_TEMPERATURE_STATUS = "GetTemperatureStatus"
+
+    CommandQueue = queue.Queue()
+
+    def CheckForCommands(self):
+        """
+        Checks to see if the user has requested that a command be performed.
+        If so, the command is performed.
+        """
+        # print("Checking for commands from the user...")
+        # print("TODO Fill this in with actual checks.")
+        commandAbbreviation = self.CommandQueue.get()
+
+        # TODO What if processing a command fails? Should it still be removed from the queue, which is what happens when .get() is called?
+        if commandAbbreviation == self.CMD_GET_DOOR_STATUS:
+            return "Door status is ok."
+        elif commandAbbreviation == self.CMD_GET_LIGHT_STATUS:
+            return "Getting light status..."
+        elif commandAbbreviation == self.CMD_GET_TEMPERATURE_STATUS:
+            return "Getting temperature status..."
+        elif commandAbbreviation == "":
+            print("TODO Testing")
+            # No command found.
+        else:
+            return "TODO Handle this case somehow."
+
+    def PushCommand(self, commandAbbreviation):
+        """
+        Pushes a command to the hub controller's queue of commands to be processed.
+        :param commandAbbreviation: An abbreviation representing the command to execute.
+        """
+        self.CommandQueue.put(commandAbbreviation)
 
 #######################
 ##### Main method #####
 #######################
 def main():
     try:
+        controller = HubController()
         while True:
             UpdateDeviceStatus()
-            CheckForCommands()
+            controller.CheckForCommands()
     except:
         print("TODO Handle errors here appropriately. Exit the program?")
 
