@@ -25,7 +25,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_valid_response(responseText)
                 return
             else:
-                self.send_error("TODO Throw some kind of undefined command error here.")
+                self.send_error(400, "Unknown command supplied")
         except IOError:
             self.send_error(404, 'file not found')
         # TODO How do I handle other types of errors?
