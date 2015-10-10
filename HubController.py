@@ -61,9 +61,7 @@ class HubController:
         :param commandAbbreviation: An abbreviation representing the command to execute.
         :return Returns a string, with the result of performing the command.
         """
-        print("Performing the command: " + commandAbbreviation)
-        # print("TODO Fill this in with actual checks.")
-#        commandAbbreviation = self.CommandQueue.get()
+        self.log("Performing the command: " + commandAbbreviation)
 
         # TODO What if processing a command fails? Should it still be removed from the queue, which is what happens when .get() is called?
         if commandAbbreviation == self.CMD_GET_DOOR_STATUS:
