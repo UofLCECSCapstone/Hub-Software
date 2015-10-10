@@ -2,7 +2,6 @@
 # TODO Create classes that represent each type of peripheral - Lightbulb, Thermostat, Door -
 #      and populate objects of those classes in the below methods, to keep things logically separated out.
 #      Procedural spaghetti is bad.
-# TODO This should probably be converted into a class.
 
 import queue
 
@@ -59,13 +58,15 @@ class HubController:
     CommandQueue = queue.Queue()
 
     def CheckForCommands(self):
+    def PerformCommand(self, commandAbbreviation):
         """
-        Checks to see if the user has requested that a command be performed.
-        If so, the command is performed.
+        Performs the command represented by the provided command abbreviation.
+        :param commandAbbreviation: An abbreviation representing the command to execute.
+        :return Returns a string, with the result of performing the command.
         """
-        # print("Checking for commands from the user...")
+        print("Performing the command: " + commandAbbreviation)
         # print("TODO Fill this in with actual checks.")
-        commandAbbreviation = self.CommandQueue.get()
+#        commandAbbreviation = self.CommandQueue.get()
 
         # TODO What if processing a command fails? Should it still be removed from the queue, which is what happens when .get() is called?
         if commandAbbreviation == self.CMD_GET_DOOR_STATUS:
