@@ -55,9 +55,6 @@ class HubController:
     CMD_GET_LIGHT_STATUS = "GetLightStatus"
     CMD_GET_TEMPERATURE_STATUS = "GetTemperatureStatus"
 
-    CommandQueue = queue.Queue()
-
-    def CheckForCommands(self):
     def PerformCommand(self, commandAbbreviation):
         """
         Performs the command represented by the provided command abbreviation.
@@ -81,13 +78,6 @@ class HubController:
         else:
             return "TODO Handle this case somehow."
 
-    def PushCommand(self, commandAbbreviation):
-        """
-        Pushes a command to the hub controller's queue of commands to be processed.
-        :param commandAbbreviation: An abbreviation representing the command to execute.
-        """
-        self.CommandQueue.put(commandAbbreviation)
-        self.log("Received command: " + commandAbbreviation)
 
     def log(self, message):
         print("HubControler::" + message)
