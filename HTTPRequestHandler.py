@@ -1,6 +1,9 @@
 import http.server
 import datetime
 import HubController
+import cgi
+from urllib.request import urlopen
+from urllib.parse import urlparse, parse_qs
 
 Controller = HubController.HubController()
 
@@ -21,6 +24,23 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_TEMPERATURE_STATUS)
                 self.send_valid_response(responseText)
                 return
+                        # TODO Using path.contains here is nasty.
+            elif "/authenticate_device" in self.path:
+                actual_auth_code = getCurrentAuthCode()
+                
+                query_components = parse_qs(urlparse(self.path).query)
+                # TODO What if the value doesn't exist here? We should handle that.
+                auth_code = query_components["auth_code"][0]
+                print(auth_code)
+                print(actual_auth_code)
+
+                if auth_code == actual_auth_code:
+                    responseText = "Success"
+                else:
+                    responseText = "Failure"
+
+                self.send_valid_response(responseText)
+                return
             else:
                 self.send_error(400, "Unknown command supplied")
         except IOError:
@@ -36,7 +56,13 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def log(self, message):
         print("HTTPRequestHandler::" + message)
+ 
+    def get_time_string(self):
+        return "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
 
+def getCurrentAuthCode():
+    authCode = urlopen("http://127.0.0.1:8081/get_current_auth_token").read().decode("utf-8")
+    return authCode
 
 def StartServer():
     print("Server starting...")
