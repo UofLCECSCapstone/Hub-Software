@@ -67,7 +67,7 @@ def getCurrentAuthCode():
 def StartServer():
     print("Server starting...")
     #ip and port of server
-    server_address = ('127.0.0.1', 8080)
+    server_address = ('', 8050)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
     print('http server is running...')
     httpd.serve_forever()
