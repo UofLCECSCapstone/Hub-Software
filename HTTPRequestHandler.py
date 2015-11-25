@@ -13,28 +13,6 @@ import ssl
 
 Controller = HubController.HubController()
 
-class SecureHTTPServer(HTTPServer):
-    def __init__(self, server_address, HandlerClass):
-        BaseServer.__init__(self, server_address, HandlerClass)
-        ctx = SSL.Context(SSL.SSLv23_METHOD)
-        #server.pem's location (containing the server private key and
-        #the server certificate).
-        # TODO Use a relative directory here.
-        fpem = '/home/pi/Desktop/SourceCode/Hub-Backend/Adafruit-Motor-HAT-Python-Library/examples/hub-http-server.pem'
-        ctx.use_privatekey_file (fpem)
-        ctx.use_certificate_file(fpem)
-        self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
-                                                        self.socket_type))
-        self.server_bind()
-        self.server_activate()
-
-
-class SecureHTTPRequestHandler(SimpleHTTPRequestHandler):
-    def setup(self):
-        self.connection = self.request
-        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
-        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
-
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -52,7 +30,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_TEMPERATURE_STATUS)
                 self.send_valid_response(responseText)
                 return
-                        # TODO Using path.contains here is nasty.
+            # TODO Using path.contains here is nasty.
             elif self.path == "/open_door":
                 responseText = Controller.PerformCommand(HubController.HubController.CMD_OPEN_DOOR)
                 self.send_valid_response(responseText)
@@ -103,36 +81,15 @@ def StartServer():
     server_address = ('', 8080)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
 
-    httpd.socket = ssl.wrap_socket(httpd.socket, certfile='/home/pi/Desktop/SourceCode/Hub-Backend/hub-http-server.pem', server_side=True)
-
-    # httpd.ctx = SSL.Context(SSL.SSLv23_METHOD)
-    # #server.pem's location (containing the server private key and
-    # #the server certificate).
-    # # TODO Use a relative directory here.
-    # fpem = '/home/pi/Desktop/SourceCode/Hub-Backend/Adafruit-Motor-HAT-Python-Library/examples/hub-http-server.pem'
-    # httpd.ctx.use_privatekey_file (fpem)
-    # httpd.ctx.use_certificate_file(fpem)
-    # httpd.socket = SSL.Connection(httpd.ctx, socket.socket(httpd.address_family,
-    #                                                      httpd.socket_type))
-    # httpd.server_bind()
-    # httpd.server_activate()
+    httpd.socket = ssl.wrap_socket(httpd.socket, certfile='./hub-http-server.pem', server_side=True)
     
     print('http server is running...')
-    httpd.serve_forever()
-
-def test(HandlerClass = SecureHTTPRequestHandler,
-         ServerClass = SecureHTTPServer):
-    server_address = ('', 8080) # (address, port)
-    httpd = ServerClass(server_address, HandlerClass)
-    sa = httpd.socket.getsockname()
-    print("Serving HTTPS on: " + sa[0] + ", Port: " + str(sa[1]) + "...")
     httpd.serve_forever()
 
 #################################################################################
 ##### Starts the HTTP server which accepts commands from the Android phone. #####
 #################################################################################
 def main():
-#    test()
     StartServer()
 
 if __name__ == "__main__":
