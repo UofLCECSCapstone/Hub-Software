@@ -3,6 +3,10 @@ from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 
 import time
 import atexit
+import sqlite3
+import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import dump
+import xml.dom.minidom as MD
 
 # create a default object, no changes to I2C address or frequency
 mh = Adafruit_MotorHAT(addr=0x60)
@@ -96,7 +100,29 @@ class HubController:
 
         # TODO What if processing a command fails? Should it still be removed from the queue, which is what happens when .get() is called?
         if commandAbbreviation == self.CMD_GET_DOOR_STATUS:
-            return "Door status is ok."
+            # Here's the response format for this command:
+            # <Doors>
+            #     <Door ID="1" Status="Open"/>
+            #     <Door ID="2" Status="Closed"/>
+            #     <Door ID="3" Status="Closed"/>
+            #     <Door ID="4" Status="Open"/>
+            # </Doors>
+            xmlDoorsRoot = ET.Element('Doors')
+            
+            conn = sqlite3.connect('hub-controller-db.db')
+            cursor = conn.cursor()
+
+            # TODO Move this logic into a separate Door class.
+            # TODO What if in the database there's a value other than 1 or 0? How should we parse that?
+            for door in cursor.execute('SELECT ID, blnOpen FROM Door'):
+                ET.SubElement(xmlDoorsRoot,
+                              'Door',
+                              # TODO Convert these hard-coded indices (door[0], door[1]) into constants - door[IX_ID], door[IX_Open].
+                              ID=str(door[0]),
+                              Status=("Open" if door[1] == 1 else "Closed"))
+
+            return (ET.tostring(xmlDoorsRoot, encoding="utf-8", method="xml")).decode('utf8')
+            # ET.tostring(xmlDoorsRoot) # xmlDoorsRoot.tostring()
         elif commandAbbreviation == self.CMD_GET_LIGHT_STATUS:
             return "Getting light status..."
         elif commandAbbreviation == self.CMD_GET_TEMPERATURE_STATUS:
