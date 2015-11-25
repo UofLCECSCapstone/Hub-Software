@@ -17,7 +17,10 @@ def turnOffMotors():
 atexit.register(turnOffMotors)
 
 ################################# DC motor test!
-myMotor = mh.getMotor(3)
+Motor1 = mh.getMotor(1)
+Motor2 = mh.getMotor(2)
+Motor3 = mh.getMotor(3)
+Motor4 = mh.getMotor(4)
 
 ###################
 ##### Methods #####
@@ -72,13 +75,18 @@ class HubController:
 
     def __init__(self):
         print("Initializing!")
-        # set the speed to start, from 0 (off) to 255 (max speed)
-        myMotor.setSpeed(150)
-        myMotor.run(Adafruit_MotorHAT.FORWARD);
-        # turn on motor
-        myMotor.run(Adafruit_MotorHAT.RELEASE);
 
-    def PerformCommand(self, commandAbbreviation):
+        
+        # set the speed to start, from 0 (off) to 255 (max speed)
+        # Initialize all motors
+        for motor in (Motor1, Motor2, Motor3, Motor4):
+            motor.setSpeed(150)
+            motor.run(Adafruit_MotorHAT.FORWARD);
+            # turn on motor
+            motor.run(Adafruit_MotorHAT.RELEASE);
+            print("Motor " + str(motor.motornum) + " initialized.")
+
+    def PerformCommand(self, commandAbbreviation, optArg):
         """
         Performs the command represented by the provided command abbreviation.
         :param commandAbbreviation: An abbreviation representing the command to execute.
@@ -95,37 +103,52 @@ class HubController:
             return "Getting temperature status..."
         elif commandAbbreviation == self.CMD_OPEN_DOOR:
             # TODO Return different text depending on success/failure.
-            print("Forward! ")
-            myMotor.run(Adafruit_MotorHAT.FORWARD)
+            CurrentMotor = None
+            MotorNumber = str(optArg)
+            if optArg == "1":
+                CurrentMotor = Motor1
+            elif optArg == "2":
+                CurrentMotor = Motor2
+            elif optArg == "3":
+                CurrentMotor = Motor3
+            elif optArg == "4":
+                CurrentMotor = Motor4
+            else:
+                print("TODO How should we handle this?")
+            print(MotorNumber)
+            print(CurrentMotor)
+                
+            print("Forward!")
+            CurrentMotor.run(Adafruit_MotorHAT.FORWARD)
 
             print("\tSpeed up...")
             for i in range(255):
-                myMotor.setSpeed(i)
+                CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
             print("\tSlow down...")
             for i in reversed(range(255)):
-                myMotor.setSpeed(i)
+                CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
             print("Backward! ")
-            myMotor.run(Adafruit_MotorHAT.BACKWARD)
+            CurrentMotor.run(Adafruit_MotorHAT.BACKWARD)
 
             print("\tSpeed up...")
             for i in range(255):
-                myMotor.setSpeed(i)
+                CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
             print("\tSlow down...")
             for i in reversed(range(255)):
-                myMotor.setSpeed(i)
+                CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
             print("Release")
-            myMotor.run(Adafruit_MotorHAT.RELEASE)
+            CurrentMotor.run(Adafruit_MotorHAT.RELEASE)
             time.sleep(1.0)
 
-            return "TODO FIX THIS"
+            return "Door " + MotorNumber + " opened or closed."
         elif commandAbbreviation == "":
             log("TODO Testing")
             # No command found.
