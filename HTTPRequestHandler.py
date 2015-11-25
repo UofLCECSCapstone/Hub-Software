@@ -19,15 +19,15 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         try:
             self.log(self.path)
             if self.path   == "/get_door_status":
-                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_DOOR_STATUS)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_DOOR_STATUS, None)
                 self.send_valid_response(responseText)
                 return
             elif self.path == "/get_light_status":
-                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_LIGHT_STATUS)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_LIGHT_STATUS, None)
                 self.send_valid_response(responseText)
                 return
             elif self.path == "/get_temperature_status":
-                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_TEMPERATURE_STATUS)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_TEMPERATURE_STATUS, None)
                 self.send_valid_response(responseText)
                 return
             # TODO Using path.contains here is nasty.
