@@ -9,6 +9,7 @@ from http.server import SimpleHTTPRequestHandler
 from OpenSSL import SSL
 from urllib.request import urlopen
 from urllib.parse import urlparse, parse_qs
+import ssl
 
 Controller = HubController.HubController()
 
@@ -101,6 +102,8 @@ def StartServer():
     #ip and port of server
     server_address = ('', 8080)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
+
+    httpd.socket = ssl.wrap_socket(httpd.socket, certfile='/home/pi/Desktop/SourceCode/Hub-Backend/hub-http-server.pem', server_side=True)
 
     # httpd.ctx = SSL.Context(SSL.SSLv23_METHOD)
     # #server.pem's location (containing the server private key and
