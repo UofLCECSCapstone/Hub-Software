@@ -1,7 +1,6 @@
 import http.server
 import datetime
-#import HubController
-import DCTest
+import HubController
 import cgi
 import socket, os 
 from socketserver import BaseServer
@@ -11,7 +10,7 @@ from OpenSSL import SSL
 from urllib.request import urlopen
 from urllib.parse import urlparse, parse_qs
 
-Controller = DCTest.HubController()
+Controller = HubController.HubController()
 
 class SecureHTTPServer(HTTPServer):
     def __init__(self, server_address, HandlerClass):
@@ -34,27 +33,26 @@ class SecureHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
         self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
 
-
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
             self.log(self.path)
             if self.path   == "/get_door_status":
-                responseText = Controller.PerformCommand(DCTest.HubController.CMD_GET_DOOR_STATUS)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_DOOR_STATUS)
                 self.send_valid_response(responseText)
                 return
             elif self.path == "/get_light_status":
-                responseText = Controller.PerformCommand(DCTest.HubController.CMD_GET_LIGHT_STATUS)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_LIGHT_STATUS)
                 self.send_valid_response(responseText)
                 return
             elif self.path == "/get_temperature_status":
-                responseText = Controller.PerformCommand(DCTest.HubController.CMD_GET_TEMPERATURE_STATUS)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_GET_TEMPERATURE_STATUS)
                 self.send_valid_response(responseText)
                 return
                         # TODO Using path.contains here is nasty.
             elif self.path == "/open_door":
-                responseText = Controller.PerformCommand(DCTest.HubController.CMD_OPEN_DOOR)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_OPEN_DOOR)
                 self.send_valid_response(responseText)
                 return
             elif "/authenticate_device" in self.path:
@@ -98,6 +96,7 @@ def getCurrentAuthCode():
 
 def StartServer():
     print("Server starting...")
+
     #ip and port of server
     server_address = ('', 8080)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
