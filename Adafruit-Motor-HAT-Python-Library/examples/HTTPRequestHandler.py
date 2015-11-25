@@ -19,7 +19,7 @@ class SecureHTTPServer(HTTPServer):
         ctx = SSL.Context(SSL.SSLv23_METHOD)
         #server.pem's location (containing the server private key and
         #the server certificate).
-        fpem = '/Desktop/SourceCode/Hub-Backend/Adafruit-Motor-HAT-Python-Library/examples/hub-http-server.pem'
+        fpem = '/home/pi/Desktop/SourceCode/Hub-Backend/Adafruit-Motor-HAT-Python-Library/examples/hub-http-server.pem'
         ctx.use_privatekey_file (fpem)
         ctx.use_certificate_file(fpem)
         self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
