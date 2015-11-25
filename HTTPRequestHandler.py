@@ -2,10 +2,37 @@ import http.server
 import datetime
 import HubController
 import cgi
+import socket, os 
+from socketserver import BaseServer
+from http.server import HTTPServer
+from http.server import SimpleHTTPRequestHandler
+from OpenSSL import SSL
 from urllib.request import urlopen
 from urllib.parse import urlparse, parse_qs
 
 Controller = HubController.HubController()
+
+class SecureHTTPServer(HTTPServer):
+    def __init__(self, server_address, HandlerClass):
+        BaseServer.__init__(self, server_address, HandlerClass)
+        ctx = SSL.Context(SSL.SSLv23_METHOD)
+        #server.pem's location (containing the server private key and
+        #the server certificate).
+        # TODO Use a relative directory here.
+        fpem = '/home/pi/Desktop/SourceCode/Hub-Backend/Adafruit-Motor-HAT-Python-Library/examples/hub-http-server.pem'
+        ctx.use_privatekey_file (fpem)
+        ctx.use_certificate_file(fpem)
+        self.socket = SSL.Connection(ctx, socket.socket(self.address_family,
+                                                        self.socket_type))
+        self.server_bind()
+        self.server_activate()
+
+
+class SecureHTTPRequestHandler(SimpleHTTPRequestHandler):
+    def setup(self):
+        self.connection = self.request
+        self.rfile = socket._fileobject(self.request, "rb", self.rbufsize)
+        self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
 
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
@@ -25,6 +52,10 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_valid_response(responseText)
                 return
                         # TODO Using path.contains here is nasty.
+            elif self.path == "/open_door":
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_OPEN_DOOR)
+                self.send_valid_response(responseText)
+                return
             elif "/authenticate_device" in self.path:
                 actual_auth_code = getCurrentAuthCode()
                 
@@ -46,7 +77,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         except IOError:
             self.send_error(404, 'file not found')
         # TODO How do I handle other types of errors?
-
+    
     def send_valid_response(self, responseText):
         self.send_response(200)
         self.send_header('Content-type','text/plain')
@@ -66,16 +97,39 @@ def getCurrentAuthCode():
 
 def StartServer():
     print("Server starting...")
+
     #ip and port of server
-    server_address = ('', 8050)
+    server_address = ('', 8080)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
+
+    # httpd.ctx = SSL.Context(SSL.SSLv23_METHOD)
+    # #server.pem's location (containing the server private key and
+    # #the server certificate).
+    # # TODO Use a relative directory here.
+    # fpem = '/home/pi/Desktop/SourceCode/Hub-Backend/Adafruit-Motor-HAT-Python-Library/examples/hub-http-server.pem'
+    # httpd.ctx.use_privatekey_file (fpem)
+    # httpd.ctx.use_certificate_file(fpem)
+    # httpd.socket = SSL.Connection(httpd.ctx, socket.socket(httpd.address_family,
+    #                                                      httpd.socket_type))
+    # httpd.server_bind()
+    # httpd.server_activate()
+    
     print('http server is running...')
+    httpd.serve_forever()
+
+def test(HandlerClass = SecureHTTPRequestHandler,
+         ServerClass = SecureHTTPServer):
+    server_address = ('', 8080) # (address, port)
+    httpd = ServerClass(server_address, HandlerClass)
+    sa = httpd.socket.getsockname()
+    print("Serving HTTPS on: " + sa[0] + ", Port: " + str(sa[1]) + "...")
     httpd.serve_forever()
 
 #################################################################################
 ##### Starts the HTTP server which accepts commands from the Android phone. #####
 #################################################################################
 def main():
+#    test()
     StartServer()
 
 if __name__ == "__main__":

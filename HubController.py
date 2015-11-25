@@ -1,9 +1,23 @@
-# TODO It would be useful to log, probably in a file, each command that is executed/received/etc. Same goes for the HTTP server.
-# TODO Create classes that represent each type of peripheral - Lightbulb, Thermostat, Door -
-#      and populate objects of those classes in the below methods, to keep things logically separated out.
-#      Procedural spaghetti is bad.
+#!/usr/bin/python3
+from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 
-import queue
+import time
+import atexit
+
+# create a default object, no changes to I2C address or frequency
+mh = Adafruit_MotorHAT(addr=0x60)
+
+# recommended for auto-disabling motors on shutdown!
+def turnOffMotors():
+    mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
+    mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+    mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
+    mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
+
+atexit.register(turnOffMotors)
+
+################################# DC motor test!
+myMotor = mh.getMotor(3)
 
 ###################
 ##### Methods #####
@@ -54,6 +68,15 @@ class HubController:
     CMD_GET_DOOR_STATUS = "GetDoorStatus"
     CMD_GET_LIGHT_STATUS = "GetLightStatus"
     CMD_GET_TEMPERATURE_STATUS = "GetTemperatureStatus"
+    CMD_OPEN_DOOR = "OpenDoor"
+
+    def __init__(self):
+        print("Initializing!")
+        # set the speed to start, from 0 (off) to 255 (max speed)
+        myMotor.setSpeed(150)
+        myMotor.run(Adafruit_MotorHAT.FORWARD);
+        # turn on motor
+        myMotor.run(Adafruit_MotorHAT.RELEASE);
 
     def PerformCommand(self, commandAbbreviation):
         """
@@ -70,12 +93,47 @@ class HubController:
             return "Getting light status..."
         elif commandAbbreviation == self.CMD_GET_TEMPERATURE_STATUS:
             return "Getting temperature status..."
+        elif commandAbbreviation == self.CMD_OPEN_DOOR:
+            # TODO Return different text depending on success/failure.
+            print("Forward! ")
+            myMotor.run(Adafruit_MotorHAT.FORWARD)
+
+            print("\tSpeed up...")
+            for i in range(255):
+                myMotor.setSpeed(i)
+                time.sleep(0.01)
+
+            print("\tSlow down...")
+            for i in reversed(range(255)):
+                myMotor.setSpeed(i)
+                time.sleep(0.01)
+
+            print("Backward! ")
+            myMotor.run(Adafruit_MotorHAT.BACKWARD)
+
+            print("\tSpeed up...")
+            for i in range(255):
+                myMotor.setSpeed(i)
+                time.sleep(0.01)
+
+            print("\tSlow down...")
+            for i in reversed(range(255)):
+                myMotor.setSpeed(i)
+                time.sleep(0.01)
+
+            print("Release")
+            myMotor.run(Adafruit_MotorHAT.RELEASE)
+            time.sleep(1.0)
+
+            return "TODO FIX THIS"
         elif commandAbbreviation == "":
             log("TODO Testing")
             # No command found.
         else:
             return "TODO Handle this case somehow."
 
+    # TODO I need to keep a couple of log files - HubLog, for commands executed on the hub,
+    #      and HTTPServerLog, for commands sent to the HTTP server. Or log them both to a database.
 
     def log(self, message):
         print("HubControler::" + message)
