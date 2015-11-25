@@ -49,9 +49,10 @@ if __name__ == '__main__':
 
 
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
+
     def do_GET(self):
         try:
-            self.log(self.pacd /home/pi/Desktop/SourceCode/Hub-Backend/Adafruit-Motor-HAT-Python-Library/examplesth)
+            self.log(self.path)
             if self.path   == "/get_door_status":
                 responseText = Controller.PerformCommand(DCTest.HubController.CMD_GET_DOOR_STATUS)
                 self.send_valid_response(responseText)
@@ -64,7 +65,6 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 responseText = Controller.PerformCommand(DCTest.HubController.CMD_GET_TEMPERATURE_STATUS)
                 self.send_valid_response(responseText)
                 return
-
                         # TODO Using path.contains here is nasty.
             elif self.path == "/open_door":
                 responseText = Controller.PerformCommand(DCTest.HubController.CMD_OPEN_DOOR)
@@ -91,7 +91,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         except IOError:
             self.send_error(404, 'file not found')
         # TODO How do I handle other types of errors?
-
+    
     def send_valid_response(self, responseText):
         self.send_response(200)
         self.send_header('Content-type','text/plain')
@@ -112,7 +112,7 @@ def getCurrentAuthCode():
 def StartServer():
     print("Server starting...")
     #ip and port of server
-    server_address = ('', 8050)
+    server_address = ('', 8080)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
     print('http server is running...')
     httpd.serve_forever()
