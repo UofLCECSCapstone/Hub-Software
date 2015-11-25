@@ -35,19 +35,6 @@ class SecureHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.wfile = socket._fileobject(self.request, "wb", self.wbufsize)
 
 
-def test(HandlerClass = SecureHTTPRequestHandler,
-         ServerClass = SecureHTTPServer):
-    server_address = ('', 443) # (address, port)
-    httpd = ServerClass(server_address, HandlerClass)
-    sa = httpd.socket.getsockname()
-    print ("Serving HTTPS on"), sa[0], "port", sa[1], "..."
-    httpd.serve_forever()
-
-
-if __name__ == '__main__':
-    test()
-
-
 class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -115,6 +102,14 @@ def StartServer():
     server_address = ('', 8080)
     httpd = http.server.HTTPServer(server_address, HTTPRequestHandler)
     print('http server is running...')
+    httpd.serve_forever()
+
+def test(HandlerClass = SecureHTTPRequestHandler,
+         ServerClass = SecureHTTPServer):
+    server_address = ('', 8050) # (address, port)
+    httpd = ServerClass(server_address, HandlerClass)
+    sa = httpd.socket.getsockname()
+    print ("Serving HTTPS on"), sa[0], "port", sa[1], "..."
     httpd.serve_forever()
 
 #################################################################################
