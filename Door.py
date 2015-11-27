@@ -44,6 +44,40 @@ class Door():
 
 
 
+    def ToggleOpenStatus(self):
+        """
+        Changes this Door's open status in the database.
+        If the door is currently known to be open, after this
+        method it will be known as closed. And vice-versa.
+        """
+
+        assert self.ID is not None
+        
+        conn = Database.get_connection()
+        cursor = conn.cursor()
+
+        # TODO This method should probably also perform the actual opening, to keep all the logic in one place.
+        if self.OpenStatus == DoorOpenStatus.Closed:
+            # TODO Is SQL injection a problem here?
+            cursor.execute("UPDATE Door " +
+                           "SET blnOpen = 1 " +
+                           "WHERE ID = " + str(self.ID))
+            self.OpenStatus = DoorOpenStatus.Open
+        elif self.OpenStatus == DoorOpenStatus.Open:
+            cursor.execute("UPDATE Door " +
+                           "SET blnOpen = 0 " +
+                           "WHERE ID = " + str(self.ID))
+            self.OpenStatus = DoorOpenStatus.Closed
+        else:
+            raise NotImplementedError("TODO Add this code.")
+            conn.close()
+            
+        # Save the changes
+        conn.commit()
+
+        # TODO Have the "opened or closed" part of the return string be based on the action actually taken.
+        conn.close()
+
 class DoorOpenStatus(Enum):
     Closed = 0
     Open = 1
