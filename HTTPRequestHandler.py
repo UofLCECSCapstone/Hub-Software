@@ -31,7 +31,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 self.send_valid_response(responseText)
                 return
             # TODO Using path.contains here is nasty.
-            elif "/open_door" in self.path:
+            elif "/toggle_door" in self.path:
                 query_components = parse_qs(urlparse(self.path).query)
                 # TODO What if the value doesn't exist here? We should handle that.
                 doorNumber = query_components["door_number"][0]
@@ -39,7 +39,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 print(str(doorNumber))
 
                 # TODO The open door command return text should specify the door, and whether it was closed or opened.
-                responseText = Controller.PerformCommand(HubController.HubController.CMD_OPEN_DOOR, doorNumber)
+                responseText = Controller.PerformCommand(HubController.HubController.CMD_TOGGLE_DOOR, doorNumber)
                 self.send_valid_response(responseText)
                 return
             elif "/authenticate_device" in self.path:

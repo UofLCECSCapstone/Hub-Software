@@ -76,7 +76,7 @@ class HubController:
     CMD_GET_DOOR_STATUS = "GetDoorStatus"
     CMD_GET_LIGHT_STATUS = "GetLightStatus"
     CMD_GET_TEMPERATURE_STATUS = "GetTemperatureStatus"
-    CMD_OPEN_DOOR = "OpenDoor"
+    CMD_TOGGLE_DOOR = "ToggleDoor"
 
     def __init__(self):
         print("Initializing!")
@@ -113,7 +113,6 @@ class HubController:
             conn = Database.get_connection()
             cursor = conn.cursor()
 
-            # TODO Move this logic into a separate Door class.
             # TODO What if in the database there's a value other than 1 or 0? How should we parse that?
             for door in cursor.execute('SELECT ID, blnOpen FROM Door'):
                 CurrentDoor = Door.FromID(door[Door.IX_DOOR_ID])
@@ -124,27 +123,34 @@ class HubController:
             conn.close() 
 
             return (ET.tostring(xmlDoorsRoot, encoding="utf-8", method="xml")).decode('utf8')
-            # ET.tostring(xmlDoorsRoot) # xmlDoorsRoot.tostring()
         elif commandAbbreviation == self.CMD_GET_LIGHT_STATUS:
             return "Getting light status..."
         elif commandAbbreviation == self.CMD_GET_TEMPERATURE_STATUS:
             return "Getting temperature status..."
-        elif commandAbbreviation == self.CMD_OPEN_DOOR:
+        elif commandAbbreviation == self.CMD_TOGGLE_DOOR:
             # TODO Return different text depending on success/failure.
             CurrentMotor = None
+            CurrentDoor = None
             MotorNumber = str(optArg)
             if optArg == "1":
                 CurrentMotor = Motor1
+                # TODO Relying on constants here is kind of nasty.
+                CurrentDoor = Door.FromID(1)
             elif optArg == "2":
                 CurrentMotor = Motor2
+                CurrentDoor = Door.FromID(2)
             elif optArg == "3":
                 CurrentMotor = Motor3
+                CurrentDoor = Door.FromID(3)
             elif optArg == "4":
                 CurrentMotor = Motor4
+                CurrentDoor = Door.FromID(4)
             else:
+                # TODO NotImplementedError here.
                 print("TODO How should we handle this?")
             print(MotorNumber)
             print(CurrentMotor)
+            print(CurrentDoor)
                 
             print("Forward!")
             CurrentMotor.run(Adafruit_MotorHAT.FORWARD)
@@ -176,7 +182,9 @@ class HubController:
             CurrentMotor.run(Adafruit_MotorHAT.RELEASE)
             time.sleep(1.0)
 
-            return "Door " + MotorNumber + " opened or closed."
+            CurrentDoor.ToggleOpenStatus()
+
+            return "Door " + MotorNumber + " is now " + str(CurrentDoor.OpenStatus) + "."
         elif commandAbbreviation == "":
             log("TODO Testing")
             # No command found.
