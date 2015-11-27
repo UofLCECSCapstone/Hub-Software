@@ -5,6 +5,9 @@
 
 import sqlite3
 
+DATABASE_FILE = "hub-controller-db.db"
+
+
 def get_connection():
     """
     Returns a SQLite connection to the
@@ -13,7 +16,7 @@ def get_connection():
     connection = None
 
     try:
-        connection = sqlite3.connect('hub-controller-db.db')
+        connection = sqlite3.connect(DATABASE_FILE)
     except Exception:
         print(Exception)
         # TODO What types of exceptions should I handle? How should I handle them?
