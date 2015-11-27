@@ -3,7 +3,7 @@ from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 
 import time
 import atexit
-import sqlite3
+import Database
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import dump
 import xml.dom.minidom as MD
@@ -109,7 +109,7 @@ class HubController:
             # </Doors>
             xmlDoorsRoot = ET.Element('Doors')
             
-            conn = sqlite3.connect('hub-controller-db.db')
+            conn = Database.get_connection()
             cursor = conn.cursor()
 
             # TODO Move this logic into a separate Door class.
@@ -120,6 +120,7 @@ class HubController:
                               # TODO Convert these hard-coded indices (door[0], door[1]) into constants - door[IX_ID], door[IX_Open].
                               ID=str(door[0]),
                               Status=("Open" if door[1] == 1 else "Closed"))
+            conn.close() 
 
             return (ET.tostring(xmlDoorsRoot, encoding="utf-8", method="xml")).decode('utf8')
             # ET.tostring(xmlDoorsRoot) # xmlDoorsRoot.tostring()
