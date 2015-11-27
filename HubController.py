@@ -115,11 +115,13 @@ class HubController:
             # TODO Move this logic into a separate Door class.
             # TODO What if in the database there's a value other than 1 or 0? How should we parse that?
             for door in cursor.execute('SELECT ID, blnOpen FROM Door'):
+                CurrentDoor = Door.FromID(door[0])
                 ET.SubElement(xmlDoorsRoot,
                               'Door',
                               # TODO Convert these hard-coded indices (door[0], door[1]) into constants - door[IX_ID], door[IX_Open].
-                              ID=str(door[0]),
                               Status=("Open" if door[1] == 1 else "Closed"))
+                              ID=str(CurrentDoor.ID),
+                              Status=str(CurrentDoor.OpenStatus))
             conn.close() 
 
             return (ET.tostring(xmlDoorsRoot, encoding="utf-8", method="xml")).decode('utf8')
