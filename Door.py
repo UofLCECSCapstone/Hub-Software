@@ -16,6 +16,14 @@ class Door():
     IX_DOOR_ID = 0
     IX_DOOR_OPEN_STATUS = 1
 
+    def __init__(self, ID, OpenStatus):
+        assert ID is not None
+        assert OpenStatus is not None
+        assert 0 <= OpenStatus.value <= 1
+
+        self.ID = ID
+        self.OpenStatus = OpenStatus
+
     @staticmethod
     def FromID(ID):
         conn = Database.get_connection()
@@ -35,9 +43,6 @@ class Door():
         raise NotImplementedError("TODO This should really be a not found exception or similar.")
 
 
-    def __init__(self, ID, OpenStatus):
-        self.ID = ID
-        self.OpenStatus = OpenStatus
 
 class DoorOpenStatus(Enum):
     Closed = 0
