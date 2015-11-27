@@ -12,18 +12,20 @@ class Door():
     ID and can be opened/closed.
     """
 
+    ### Door table column indices. ###
+    IX_DOOR_ID = 0
+    IX_DOOR_OPEN_STATUS = 1
+
     @staticmethod
     def FromID(ID):
-        #        raise NotImplementedError("TODO Add this code.")
-        #                    CurrentDoor = Door(door[0], DoorOpenStatus.Closed if door[1] == 0 else DoorOpenStatus.Open)
         conn = Database.get_connection()
         cursor = conn.cursor()
 
         # TODO What if in the database there's a value other than 1 or 0? How should we parse that?
         for door in cursor.execute('SELECT ID, blnOpen FROM Door'):
-            if door[0] == ID:
-                FoundDoor = Door(door[0],
-                                 DoorOpenStatus.Closed if door[1] == 0 else DoorOpenStatus.Open)
+            if door[Door.IX_DOOR_ID] == ID:
+                FoundDoor = Door(door[Door.IX_DOOR_ID],
+                                 DoorOpenStatus.Closed if door[Door.IX_DOOR_OPEN_STATUS] == 0 else DoorOpenStatus.Open)
                 conn.close()
                 
                 return FoundDoor

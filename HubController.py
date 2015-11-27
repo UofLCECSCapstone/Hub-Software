@@ -4,6 +4,7 @@ from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 import time
 import atexit
 import Database
+from Door import Door, DoorOpenStatus
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import dump
 import xml.dom.minidom as MD
@@ -115,11 +116,9 @@ class HubController:
             # TODO Move this logic into a separate Door class.
             # TODO What if in the database there's a value other than 1 or 0? How should we parse that?
             for door in cursor.execute('SELECT ID, blnOpen FROM Door'):
-                CurrentDoor = Door.FromID(door[0])
+                CurrentDoor = Door.FromID(door[Door.IX_DOOR_ID])
                 ET.SubElement(xmlDoorsRoot,
                               'Door',
-                              # TODO Convert these hard-coded indices (door[0], door[1]) into constants - door[IX_ID], door[IX_Open].
-                              Status=("Open" if door[1] == 1 else "Closed"))
                               ID=str(CurrentDoor.ID),
                               Status=str(CurrentDoor.OpenStatus))
             conn.close() 
