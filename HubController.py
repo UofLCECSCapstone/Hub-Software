@@ -79,8 +79,7 @@ class HubController:
     CMD_TOGGLE_DOOR = "ToggleDoor"
 
     def __init__(self):
-        print("Initializing!")
-
+        self.log("Initializing!")
         
         # set the speed to start, from 0 (off) to 255 (max speed)
         # Initialize all motors
@@ -89,7 +88,7 @@ class HubController:
             motor.run(Adafruit_MotorHAT.FORWARD);
             # turn on motor
             motor.run(Adafruit_MotorHAT.RELEASE);
-            print("Motor " + str(motor.motornum) + " initialized.")
+            self.log("Motor " + str(motor.motornum) + " initialized.")
 
     def PerformCommand(self, commandAbbreviation, optArg):
         """
@@ -101,6 +100,7 @@ class HubController:
 
         # TODO What if processing a command fails? Should it still be removed from the queue, which is what happens when .get() is called?
         if commandAbbreviation == self.CMD_GET_DOOR_STATUS:
+            # TODO Split these commands into separate methods - polymorphism, yo.
             # Here's the response format for this command:
             # <Doors>
             #     <Door ID="1" Status="Open"/>
@@ -115,11 +115,14 @@ class HubController:
 
             # TODO What if in the database there's a value other than 1 or 0? How should we parse that?
             for door in cursor.execute('SELECT ID, blnOpen FROM Door'):
+                # TODO Tidy up/make clear this code.
+                # TODO Better variable name than currentdoor.
                 CurrentDoor = Door.FromID(door[Door.IX_DOOR_ID])
                 ET.SubElement(xmlDoorsRoot,
                               'Door',
                               ID=str(CurrentDoor.ID),
                               Status=str(CurrentDoor.OpenStatus))
+            # TODO Replace calls to close the connection with a With statement probably.
             conn.close() 
 
             return (ET.tostring(xmlDoorsRoot, encoding="utf-8", method="xml")).decode('utf8')
@@ -129,6 +132,8 @@ class HubController:
             return "Getting temperature status..."
         elif commandAbbreviation == self.CMD_TOGGLE_DOOR:
             # TODO Return different text depending on success/failure.
+            # TODO Merge together the CurrentMotor and CurrentDoor objects. A Door has a Motor.
+            # TODO Integrate all of this logic into the Door class.
             CurrentMotor = None
             CurrentDoor = None
             MotorNumber = str(optArg)
@@ -147,41 +152,43 @@ class HubController:
                 CurrentDoor = Door.FromID(4)
             else:
                 # TODO NotImplementedError here.
-                print("TODO How should we handle this?")
-            print(MotorNumber)
+                self.log("TODO How should we handle this?")
+            self.log(MotorNumber)
             print(CurrentMotor)
             print(CurrentDoor)
                 
-            print("Forward!")
+            self.log("Forward!")
             CurrentMotor.run(Adafruit_MotorHAT.FORWARD)
 
-            print("\tSpeed up...")
+            self.log("\tSpeed up...")
             for i in range(255):
                 CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
-            print("\tSlow down...")
+            self.log("\tSlow down...")
             for i in reversed(range(255)):
                 CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
-            print("Backward! ")
+            self.log("Backward! ")
             CurrentMotor.run(Adafruit_MotorHAT.BACKWARD)
 
-            print("\tSpeed up...")
+            self.log("\tSpeed up...")
             for i in range(255):
                 CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
-            print("\tSlow down...")
+            self.log("\tSlow down...")
             for i in reversed(range(255)):
                 CurrentMotor.setSpeed(i)
                 time.sleep(0.01)
 
-            print("Release")
+            self.log("Release")
             CurrentMotor.run(Adafruit_MotorHAT.RELEASE)
             time.sleep(1.0)
 
+            # TODO What if there's an error above and the door fails to open/close? Wrap all the relevant code in a try catch, handle appropriately.
+            # TODO Do I need to dispose of the sqlite connection? If so, I can probably use Python's with statement - the equivalent of a .NET using statement.
             CurrentDoor.ToggleOpenStatus()
 
             return "Door " + MotorNumber + " is now " + str(CurrentDoor.OpenStatus) + "."

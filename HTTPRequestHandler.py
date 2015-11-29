@@ -36,7 +36,7 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 # TODO What if the value doesn't exist here? We should handle that.
                 doorNumber = query_components["door_number"][0]
                 # TODO Return an error if the door number is outside the correct range (1-4).
-                print(str(doorNumber))
+                self.log(str(doorNumber))
 
                 # TODO The open door command return text should specify the door, and whether it was closed or opened.
                 responseText = Controller.PerformCommand(HubController.HubController.CMD_TOGGLE_DOOR, doorNumber)
@@ -48,8 +48,8 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
                 query_components = parse_qs(urlparse(self.path).query)
                 # TODO What if the value doesn't exist here? We should handle that.
                 auth_code = query_components["auth_code"][0]
-                print(auth_code)
-                print(actual_auth_code)
+                self.log(auth_code)
+                self.log(actual_auth_code)
 
                 if auth_code == actual_auth_code:
                     responseText = "Success"
