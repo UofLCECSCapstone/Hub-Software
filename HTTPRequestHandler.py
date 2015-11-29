@@ -10,6 +10,7 @@ from OpenSSL import SSL
 from urllib.request import urlopen
 from urllib.parse import urlparse, parse_qs
 import ssl
+from datetime import date
 
 Controller = HubController.HubController()
 
@@ -73,7 +74,13 @@ class HTTPRequestHandler(http.server.BaseHTTPRequestHandler):
 
 
     def log(self, message):
-        print("HTTPRequestHandler::" + message)
+        LogPath = self.get_current_log_path()
+        with open(LogPath, "a") as log_file:
+            log_file.write("HTTPRequestHandler::" + message + "\n")
+
+    def get_current_log_path(self):
+        Today = date.today()
+        return "./logs/" + Today.strftime("%Y-%m-%d") + ".log.txt"
  
     def get_time_string(self):
         return "Current time: " + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')

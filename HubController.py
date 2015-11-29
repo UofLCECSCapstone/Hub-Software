@@ -8,6 +8,7 @@ from Door import Door, DoorOpenStatus
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import dump
 import xml.dom.minidom as MD
+from datetime import date
 
 # create a default object, no changes to I2C address or frequency
 mh = Adafruit_MotorHAT(addr=0x60)
@@ -202,7 +203,13 @@ class HubController:
     #      and HTTPServerLog, for commands sent to the HTTP server. Or log them both to a database.
 
     def log(self, message):
-        print("HubControler::" + message)
+        LogPath = self.get_current_log_path()
+        with open(LogPath, "a") as log_file:
+            log_file.write("HTTPRequestHandler::" + message + "\n")
+
+    def get_current_log_path(self):
+        Today = date.today()
+        return "./logs/" + Today.strftime("%Y-%m-%d") + ".log.txt"
 
 #######################
 ##### Main method #####
