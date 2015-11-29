@@ -15,14 +15,19 @@ class Door():
     ### Door table column indices. ###
     IX_DOOR_ID = 0
     IX_DOOR_OPEN_STATUS = 1
+    IX_DOOR_SECONDS_TO_OPEN = 2
+    IX_DOOR_SECONDS_TO_CLOSE = 3
 
-    def __init__(self, ID, OpenStatus):
+    def __init__(self, ID, OpenStatus, SecondsToOpen, SecondsToClose):
         assert ID is not None
         assert OpenStatus is not None
+        # TODO Replace hard-coded 0/1 with OpenStatus.Closed.Value, eg.
         assert 0 <= OpenStatus.value <= 1
 
         self.ID = ID
         self.OpenStatus = OpenStatus
+        self.SecondsToOpen = SecondsToOpen
+        self.SecondsToClose = SecondsToClose
 
     @staticmethod
     def FromID(ID):
@@ -30,10 +35,12 @@ class Door():
         cursor = conn.cursor()
 
         # TODO What if in the database there's a value other than 1 or 0? How should we parse that?
-        for door in cursor.execute('SELECT ID, blnOpen FROM Door'):
+        for door in cursor.execute('SELECT ID, blnOpen, SecondsToOpen, SecondsToClose FROM Door'):
             if door[Door.IX_DOOR_ID] == ID:
                 FoundDoor = Door(door[Door.IX_DOOR_ID],
-                                 DoorOpenStatus.Closed if door[Door.IX_DOOR_OPEN_STATUS] == 0 else DoorOpenStatus.Open)
+                                 DoorOpenStatus.Closed if door[Door.IX_DOOR_OPEN_STATUS] == 0 else DoorOpenStatus.Open,
+                                 door[Door.IX_DOOR_SECONDS_TO_OPEN],
+                                 door[Door.IX_DOOR_SECONDS_TO_CLOSE])
                 conn.close()
                 
                 return FoundDoor
@@ -41,8 +48,6 @@ class Door():
         conn.close()
 
         raise NotImplementedError("TODO This should really be a not found exception or similar.")
-
-
 
     def ToggleOpenStatus(self):
         """
